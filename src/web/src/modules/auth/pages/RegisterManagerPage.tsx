@@ -1,11 +1,10 @@
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
 import { Mail, Lock, Building, Loader2 } from 'lucide-react'
+import { authRepository } from '../repositories/AuthRepository'
 
 const registerSchema = z.object({
     companyName: z.string().min(2, 'Company name must be at least 2 characters'),
@@ -13,8 +12,8 @@ const registerSchema = z.object({
     password: z.string().min(8, 'Password must be at least 8 characters')
         .regex(/[A-Z]/, 'Must contain one uppercase letter')
         .regex(/[0-9]/, 'Must contain one number'),
-    terms: z.literal(true, {
-        errorMap: () => ({ message: "You must accept the terms and conditions" }),
+    terms: z.boolean().refine(val => val === true, {
+        message: "You must accept the terms and conditions",
     }),
 })
 
@@ -34,26 +33,16 @@ export default function RegisterManagerPage() {
         setError(null)
 
         try {
-            // Pass org_name in metadata to trigger DB provisioning
-            const { error: authError } = await supabase.auth.signUp({
-                email: data.email,
-                password: data.password,
-                options: {
-                    data: {
-                        org_name: data.companyName,
-                        role: 'manager' // Redundant but good for clarity in auth table
-                    }
-                }
-            })
+            const { error: authError } = await authRepository.signUpManager(
+                data.email,
+                data.password,
+                data.companyName
+            )
 
             if (authError) {
                 throw authError
             }
 
-            // Success - In a real app with email confirm, we'd show a "Check email" page.
-            // If email confirm is off, we can redirect to dashboard.
-            // Assuming email confirm might be on, let's show a message or redirect.
-            // For this phase, let's assume auto-login or redirect.
             navigate('/dashboard')
         } catch (err: any) {
             setError(err.message || 'Failed to register')

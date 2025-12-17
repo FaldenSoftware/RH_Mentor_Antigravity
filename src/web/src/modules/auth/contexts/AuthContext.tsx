@@ -1,15 +1,7 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
-
-type UserRole = 'manager' | 'leader';
-
-interface Profile {
-    id: string;
-    role: UserRole;
-    organization_id: string | null;
-}
+import type { User, Session } from "@supabase/supabase-js";
+import { supabase } from "../../../lib/supabase";
+import { profileRepository, type Profile } from "../repositories/ProfileRepository";
 
 interface AuthContextType {
     user: User | null;
@@ -63,17 +55,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchProfile = async (userId: string) => {
         try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('user_id', userId)
-                .single();
-
-            if (error) {
-                console.error('Error fetching profile:', error);
-            } else {
-                setProfile(data);
-            }
+            const profileData = await profileRepository.getByUserId(userId);
+            setProfile(profileData);
         } catch (error) {
             console.error('Unexpected error fetching profile:', error);
         } finally {

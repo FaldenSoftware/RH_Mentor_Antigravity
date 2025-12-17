@@ -1,11 +1,10 @@
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
 import { Mail, Lock, Loader2 } from 'lucide-react'
+import { authRepository } from '../repositories/AuthRepository'
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -28,10 +27,10 @@ export default function LoginPage() {
         setError(null)
 
         try {
-            const { error: authError } = await supabase.auth.signInWithPassword({
-                email: data.email,
-                password: data.password,
-            })
+            const { error: authError } = await authRepository.signInWithPassword(
+                data.email,
+                data.password
+            )
 
             if (authError) {
                 throw authError
@@ -39,8 +38,6 @@ export default function LoginPage() {
 
             navigate('/dashboard')
         } catch (err: any) {
-            // Treating error explicitly, not exposing internals if possible, though AuthApiError messages are usually safe-ish.
-            // Better to genericize if it's a 500, but for 'Invalid login credentials' it's fine.
             setError(err.message || 'Failed to sign in')
         } finally {
             setLoading(false)
