@@ -77,7 +77,12 @@ export default function TakeTestPage() {
         const score = calculateScore();
 
         // 1. Create Result
-        const { error: resultError } = await resultRepository.create(assignmentId, user.id, answers, score);
+        const { error: resultError } = await resultRepository.create({
+            assignment_id: assignmentId,
+            user_id: user.id,
+            answers,
+            score
+        });
 
         if (resultError) {
             alert('Failed to submit results: ' + resultError.message);

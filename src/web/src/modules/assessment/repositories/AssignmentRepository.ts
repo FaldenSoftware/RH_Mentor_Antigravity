@@ -34,22 +34,40 @@ export class AssignmentRepository {
         return { data, error };
     }
 
-    async listByOrganization(organizationId: string): Promise<{ data: Assignment[] | null; error: any }> {
-        const { data, error } = await supabase
-            .from('assignments')
-            .select('*, test:tests(title)')
-            .eq('organization_id', organizationId)
-            .order('assigned_at', { ascending: false });
+    async listByOrganization(organizationId: string, page: number = 1, limit: number = 10): Promise<{ data: Assignment[] | null; count: number | null; error: any }> {
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
 
-        return { data: data as any, error };
+        const { data, count, error } = await supabase
+            .from('assignments')
+            .select('id, leader_id, test_id, organization_id, assigned_at, completed_at, test:tests(title)', { count: 'exact' })
+            .eq('organization_id', organizationId)
+            .order('assigned_at', { ascending: false })
+            .range(from, to);
+
+        return { data: data as any, count, error };
     }
 
-    async listByLeader(leaderId: string): Promise<{ data: Assignment[] | null; error: any }> {
+    async listByLeader(leaderId: string, page: number = 1, limit: number = 10): Promise<{ data: Assignment[] | null; count: number | null; error: any }> {
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
+
+        const { data, count, error } = await supabase
+            .from('assignments')
+            .select('id, leader_id, test_id, organization_id, assigned_at, completed_at, test:tests(title, description)', { count: 'exact' })
+            .eq('leader_id', leaderId)
+            .order('assigned_at', { ascending: false })
+            .range(from, to);
+
+        return { data: data as any, count, error };
+    }
+
+    async getById(id: string): Promise<{ data: Assignment | null; error: any }> {
         const { data, error } = await supabase
             .from('assignments')
-            .select('*, test:tests(title, description)')
-            .eq('leader_id', leaderId)
-            .order('assigned_at', { ascending: false });
+            .select('id, leader_id, test_id, organization_id, assigned_at, completed_at, test:tests(title, questions)')
+            .eq('id', id)
+            .single();
 
         return { data: data as any, error };
     }

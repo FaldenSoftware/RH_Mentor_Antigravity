@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/contexts/AuthContext';
-import { testRepository, type Test } from '../repositories/TestRepository';
+import { testRepository, type TestSummary } from '../repositories/TestRepository';
 import { assignmentRepository } from '../repositories/AssignmentRepository';
 import { profileRepository, type Profile } from '../../auth/repositories/ProfileRepository';
 import { Loader2, UserPlus, Check } from 'lucide-react';
 
 export default function ManagerAssessmentList() {
     const { profile } = useAuth();
-    const [tests, setTests] = useState<Test[]>([]);
+    const [tests, setTests] = useState<TestSummary[]>([]);
     const [members, setMembers] = useState<Profile[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTest, setSelectedTest] = useState<string | null>(null);

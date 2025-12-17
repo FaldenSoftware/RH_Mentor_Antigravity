@@ -11,6 +11,7 @@ vi.mock('../../../../lib/supabase', () => ({
             single: vi.fn(),
             eq: vi.fn().mockReturnThis(),
             order: vi.fn().mockReturnThis(),
+            range: vi.fn().mockReturnThis(),
             update: vi.fn().mockReturnThis(),
         })),
     },
@@ -48,7 +49,8 @@ describe('AssignmentRepository', () => {
         const mockData = [{ id: '1', leader_id: 'l1' }];
 
         // Setup mock chain
-        const orderMock = vi.fn().mockResolvedValue({ data: mockData, error: null });
+        const rangeMock = vi.fn().mockResolvedValue({ data: mockData, count: 1, error: null });
+        const orderMock = vi.fn().mockReturnValue({ range: rangeMock });
         const eqMock = vi.fn().mockReturnValue({ order: orderMock });
         const selectMock = vi.fn().mockReturnValue({ eq: eqMock });
         const fromMock = vi.fn().mockReturnValue({ select: selectMock });
@@ -58,8 +60,9 @@ describe('AssignmentRepository', () => {
         const { data, error } = await assignmentRepository.listByLeader('l1');
 
         expect(supabase.from).toHaveBeenCalledWith('assignments');
-        expect(selectMock).toHaveBeenCalledWith('*, test:tests(title, description)');
+        expect(selectMock).toHaveBeenCalledWith('id, leader_id, test_id, organization_id, assigned_at, completed_at, test:tests(title, description)', { count: 'exact' });
         expect(eqMock).toHaveBeenCalledWith('leader_id', 'l1');
+        expect(rangeMock).toHaveBeenCalledWith(0, 9);
         expect(data).toEqual(mockData);
         expect(error).toBeNull();
     });

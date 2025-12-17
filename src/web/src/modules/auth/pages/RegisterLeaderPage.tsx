@@ -5,7 +5,11 @@ import { z } from 'zod'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { invitationRepository } from '../../organization/repositories/InvitationRepository'
-import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
+import { Mail, Lock, Loader2, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Button } from '../../../components/ui/Button'
+import { Input } from '../../../components/ui/Input'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/ui/Card'
 
 const registerSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -81,106 +85,130 @@ export default function RegisterLeaderPage() {
     };
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-indigo-600" /></div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <Loader2 className="animate-spin h-8 w-8 text-primary" />
+            </div>
+        );
     }
 
     if (!token || (inviteData && !inviteData.valid)) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-                <div className="max-w-md w-full text-center">
-                    <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
-                    <h2 className="mt-4 text-lg font-medium text-gray-900">Invalid or Expired Invitation</h2>
-                    <p className="mt-2 text-sm text-gray-500">This invitation link is invalid or has expired. Please ask your manager for a new one.</p>
-                    <div className="mt-6">
-                        <Link to="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
-                            Back to Sign In
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+                <Card className="max-w-md w-full border-destructive/20 shadow-lg">
+                    <CardHeader className="text-center">
+                        <div className="mx-auto h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                            <AlertCircle className="h-6 w-6 text-destructive" />
+                        </div>
+                        <CardTitle className="text-destructive">Invalid Invitation</CardTitle>
+                        <CardDescription>
+                            This invitation link is invalid or has expired. Please ask your manager for a new one.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardFooter className="justify-center">
+                        <Link to="/login">
+                            <Button variant="outline">Back to Sign In</Button>
                         </Link>
-                    </div>
-                </div>
+                    </CardFooter>
+                </Card>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Join your team
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Create your account to accept the invitation
-                    </p>
-                </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Mail className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                {...register('email')}
-                                type="email"
-                                readOnly // Email is fixed from invite
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-500 bg-gray-50 rounded-t-md focus:outline-none sm:text-sm cursor-not-allowed"
-                            />
-                        </div>
+        <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 relative overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-3xl" />
+                <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/5 blur-3xl" />
+            </div>
 
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Lock className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                {...register('password')}
-                                type="password"
-                                className={`appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border ${errors.password ? 'border-red-300' : 'border-gray-300'
-                                    } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                                placeholder="Create Password"
-                            />
-                        </div>
-
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Lock className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                {...register('confirmPassword')}
-                                type="password"
-                                className={`appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border ${errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                                    } placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                                placeholder="Confirm Password"
-                            />
-                        </div>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="w-full max-w-md px-4 relative z-10"
+            >
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary/10 text-primary mb-4">
+                        <CheckCircle2 className="h-6 w-6" />
                     </div>
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Join your team</h1>
+                    <p className="mt-2 text-slate-600">Create your account to accept the invitation</p>
+                </div>
 
-                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-                    {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
-
-                    {error && (
-                        <div className="rounded-md bg-red-50 p-4">
-                            <div className="flex">
-                                <div className="ml-3">
-                                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle>Complete Registration</CardTitle>
+                        <CardDescription>Set up your password to continue</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            <div className="space-y-2">
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                    <Input
+                                        {...register('email')}
+                                        type="email"
+                                        readOnly
+                                        className="pl-10 bg-slate-50 text-muted-foreground cursor-not-allowed"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                    )}
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                        >
-                            {submitting ? (
-                                <Loader2 className="animate-spin h-5 w-5 text-white" />
-                            ) : (
-                                'Create Account'
+                            <div className="space-y-2">
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                    <Input
+                                        {...register('password')}
+                                        type="password"
+                                        placeholder="Create Password"
+                                        className="pl-10"
+                                    />
+                                </div>
+                                {errors.password && (
+                                    <p className="text-sm text-destructive">{errors.password.message}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                    <Input
+                                        {...register('confirmPassword')}
+                                        type="password"
+                                        placeholder="Confirm Password"
+                                        className="pl-10"
+                                    />
+                                </div>
+                                {errors.confirmPassword && (
+                                    <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+                                )}
+                            </div>
+
+                            {error && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="p-3 rounded-md bg-destructive/10 text-destructive text-sm font-medium"
+                                >
+                                    {error}
+                                </motion.div>
                             )}
-                        </button>
-                    </div>
-                </form>
-            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                size="lg"
+                                loading={submitting}
+                            >
+                                Create Account
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+            </motion.div>
         </div>
     )
 }

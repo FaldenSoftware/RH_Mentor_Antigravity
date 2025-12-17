@@ -19,14 +19,25 @@ export interface Test {
     created_at: string;
 }
 
-export class TestRepository {
-    async list(): Promise<{ data: Test[] | null; error: any }> {
-        const { data, error } = await supabase
-            .from('tests')
-            .select('*')
-            .order('created_at', { ascending: false });
+export interface TestSummary {
+    id: string;
+    title: string;
+    description: string;
+    created_at: string;
+}
 
-        return { data, error };
+export class TestRepository {
+    async list(page: number = 1, limit: number = 10): Promise<{ data: TestSummary[] | null; count: number | null; error: any }> {
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
+
+        const { data, count, error } = await supabase
+            .from('tests')
+            .select('id, title, description, created_at', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(from, to);
+
+        return { data, count, error };
     }
 
     async getById(id: string): Promise<{ data: Test | null; error: any }> {

@@ -10,15 +10,10 @@ export interface Result {
 }
 
 export class ResultRepository {
-    async create(assignmentId: string, userId: string, answers: any, score: any): Promise<{ data: Result | null; error: any }> {
+    async create(payload: { assignment_id: string; user_id: string; answers: any; score: any }): Promise<{ data: Result | null; error: any }> {
         const { data, error } = await supabase
             .from('results')
-            .insert({
-                assignment_id: assignmentId,
-                user_id: userId,
-                answers,
-                score
-            })
+            .insert(payload)
             .select()
             .single();
 
@@ -28,7 +23,7 @@ export class ResultRepository {
     async getByAssignmentId(assignmentId: string): Promise<{ data: Result | null; error: any }> {
         const { data, error } = await supabase
             .from('results')
-            .select('*')
+            .select('id, assignment_id, user_id, answers, score, created_at')
             .eq('assignment_id', assignmentId)
             .single();
 

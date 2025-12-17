@@ -25,37 +25,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Check active session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                fetchProfile(session.user.id);
-            } else {
-                setLoading(false);
-            }
-        });
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                fetchProfile(session.user.id);
-            } else {
-                setProfile(null);
-                setLoading(false);
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
     const fetchProfile = async (userId: string) => {
         try {
-            const profileData = await profileRepository.getByUserId(userId);
+            const { data: profileData, error } = await profileRepository.getByUserId(userId);
+            if (error) throw error;
             setProfile(profileData);
         } catch (error) {
             console.error('Unexpected error fetching profile:', error);
@@ -63,6 +36,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        let mockApplied = false;
+        // Check active session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                setSession(session);
+                setUser(session.user);
+                fetchProfile(session.user.id);
+            } else {
+                // MOCK AUTH BYPASS FOR DEV
+                console.log("Dev Mode: Bypassing Auth with Mock Manager Profile");
+                const mockUser = { id: 'mock-user-id', email: 'dev@manager.com' } as User;
+                const mockProfile: Profile = {
+                    id: 'mock-profile-id',
+                    user_id: 'mock-user-id',
+                    organization_id: '26d0ab36-fdd0-4d06-8a59-7b5af7387edb',
+                    role: 'manager',
+                    created_at: new Date().toISOString()
+                };
+                setUser(mockUser);
+                setProfile(mockProfile);
+                setLoading(false);
+                mockApplied = true;
+            }
+        });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) {
+                mockApplied = false;
+                setSession(session);
+                setUser(session.user);
+                fetchProfile(session.user.id);
+            } else {
+                if (!mockApplied) {
+                    setSession(null);
+                    setUser(null);
+                    setProfile(null);
+                    setLoading(false);
+                }
+                mockApplied = false; // Reset after one check
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     const signOut = async () => {
         await supabase.auth.signOut();
