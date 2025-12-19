@@ -28,7 +28,7 @@ export const LeaderDashboard: React.FC = () => {
             setAssignments(data || []);
             setTotalCount(count || 0);
         } catch (err) {
-            console.error('Failed to fetch assignments', err);
+            console.error('Falha ao buscar avaliações', err);
         } finally {
             setLoading(false);
         }
@@ -43,8 +43,8 @@ export const LeaderDashboard: React.FC = () => {
     const totalPages = Math.ceil(totalCount / limit);
 
     const data = [
-        { name: 'Completed', value: completedAssignments.length },
-        { name: 'Pending', value: pendingAssignments.length },
+        { name: 'Concluído', value: completedAssignments.length },
+        { name: 'Pendente', value: pendingAssignments.length },
     ];
     const COLORS = ['hsl(var(--primary))', 'hsl(var(--muted))'];
 
@@ -52,8 +52,8 @@ export const LeaderDashboard: React.FC = () => {
         <DashboardLayout>
             <div className="space-y-8 animate-in fade-in duration-500">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">My Development Plan</h1>
-                    <p className="text-muted-foreground mt-1">Track your assessments and view your results.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Meu Plano de Desenvolvimento</h1>
+                    <p className="text-muted-foreground mt-1">Acompanhe suas avaliações e veja seus resultados.</p>
                 </div>
 
                 <div className="grid gap-8 md:grid-cols-[2fr_1fr]">
@@ -64,7 +64,7 @@ export const LeaderDashboard: React.FC = () => {
                                 <div className="p-2 bg-primary/10 rounded-lg">
                                     <Clock className="text-primary h-5 w-5" />
                                 </div>
-                                <h2 className="text-xl font-semibold text-foreground">Pending Assessments</h2>
+                                <h2 className="text-xl font-semibold text-foreground">Avaliações Pendentes</h2>
                             </div>
 
                             {loading ? (
@@ -77,9 +77,9 @@ export const LeaderDashboard: React.FC = () => {
                                         <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center mb-4 shadow-sm ring-1 ring-primary/20">
                                             <Trophy className="text-primary h-6 w-6" />
                                         </div>
-                                        <h3 className="text-lg font-medium text-primary">All Caught Up!</h3>
+                                        <h3 className="text-lg font-medium text-primary">Tudo em dia!</h3>
                                         <p className="text-muted-foreground mt-1 max-w-sm">
-                                            You have no pending assessments. Great job staying on top of your development plan.
+                                            Você não tem avaliações pendentes. Ótimo trabalho mantendo seu plano de desenvolvimento em dia.
                                         </p>
                                     </CardContent>
                                 </Card>
@@ -96,11 +96,11 @@ export const LeaderDashboard: React.FC = () => {
                                                 <CardContent className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                                     <div>
                                                         <Badge variant="secondary" className="mb-2 bg-primary/10 text-primary hover:bg-primary/20">
-                                                            Assigned {new Date(assignment.assigned_at).toLocaleDateString()}
+                                                            Atribuído em {new Date(assignment.assigned_at).toLocaleDateString()}
                                                         </Badge>
                                                         <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">{assignment.test?.title}</h3>
                                                         <p className="text-muted-foreground text-sm mt-1">
-                                                            Complete this assessment to unlock your leadership insights.
+                                                            Complete esta avaliação para desbloquear seus insights de liderança.
                                                         </p>
                                                     </div>
                                                     <Button
@@ -108,7 +108,7 @@ export const LeaderDashboard: React.FC = () => {
                                                         className="w-full sm:w-auto shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform"
                                                     >
                                                         <PlayCircle className="mr-2 h-4 w-4" />
-                                                        Start Now
+                                                        Iniciar Agora
                                                     </Button>
                                                 </CardContent>
                                             </Card>
@@ -124,16 +124,16 @@ export const LeaderDashboard: React.FC = () => {
                                 <div className="p-2 bg-green-100 rounded-lg">
                                     <CheckCircle className="text-green-600 h-5 w-5" />
                                 </div>
-                                <h2 className="text-xl font-semibold text-foreground">Completed History</h2>
+                                <h2 className="text-xl font-semibold text-foreground">Histórico Concluído</h2>
                             </div>
 
                             <Card className="hover:shadow-md transition-shadow">
                                 <CardContent className="p-0">
                                     {loading ? (
-                                        <div className="p-8 text-center text-muted-foreground">Loading...</div>
+                                        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
                                     ) : completedAssignments.length === 0 ? (
                                         <div className="p-12 text-center text-muted-foreground">
-                                            No completed assessments yet.
+                                            Nenhuma avaliação concluída ainda.
                                         </div>
                                     ) : (
                                         <div className="divide-y divide-border/50">
@@ -148,12 +148,12 @@ export const LeaderDashboard: React.FC = () => {
                                                                 {assignment.test?.title}
                                                             </h3>
                                                             <p className="text-sm text-muted-foreground">
-                                                                Completed on {new Date(assignment.completed_at!).toLocaleDateString()}
+                                                                Concluído em {new Date(assignment.completed_at!).toLocaleDateString()}
                                                             </p>
                                                         </div>
                                                     </div>
                                                     <Button variant="ghost" size="sm" className="text-primary opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                                                        View Result <ChevronRight className="ml-1 h-4 w-4" />
+                                                        Ver Resultado <ChevronRight className="ml-1 h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             ))}
@@ -171,7 +171,7 @@ export const LeaderDashboard: React.FC = () => {
                                             >
                                                 <ChevronLeft className="h-4 w-4" />
                                             </Button>
-                                            <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+                                            <span className="text-sm text-muted-foreground">Página {page} de {totalPages}</span>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -196,7 +196,7 @@ export const LeaderDashboard: React.FC = () => {
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
                                     <Target className="h-5 w-5" />
-                                    Your Progress
+                                    Seu Progresso
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="relative z-10">
@@ -225,13 +225,13 @@ export const LeaderDashboard: React.FC = () => {
                                     </ResponsiveContainer>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                         <span className="text-3xl font-bold">{completedAssignments.length}</span>
-                                        <span className="text-xs opacity-80">Completed</span>
+                                        <span className="text-xs opacity-80">Concluído</span>
                                     </div>
                                 </div>
 
                                 <div className="mt-4 space-y-2">
                                     <div className="flex justify-between text-sm">
-                                        <span className="opacity-80">Pending</span>
+                                        <span className="opacity-80">Pendente</span>
                                         <span className="font-medium">{pendingAssignments.length}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
@@ -246,12 +246,12 @@ export const LeaderDashboard: React.FC = () => {
                             <CardHeader>
                                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                                     <Zap className="h-4 w-4 text-yellow-500" />
-                                    Quick Tip
+                                    Dica Rápida
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm text-muted-foreground">
-                                    Consistent growth comes from regular self-reflection. Try to complete one assessment per week.
+                                    O crescimento consistente vem da autorreflexão regular. Tente completar uma avaliação por semana.
                                 </p>
                             </CardContent>
                         </Card>

@@ -7,6 +7,7 @@ export interface Profile {
     role: 'manager' | 'leader';
     created_at: string;
     email?: string; // Optional, fetched from auth metadata or separate table if we had one
+    full_name?: string;
 }
 
 export class ProfileRepository {

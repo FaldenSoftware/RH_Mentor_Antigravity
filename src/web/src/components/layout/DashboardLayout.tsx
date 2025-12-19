@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../modules/auth/contexts/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
     LayoutDashboard,
     Users,
-    ClipboardList,
+    FileText,
+    BarChart2,
+    Mail,
+    Trophy,
+    Bot,
+    Settings,
+    HelpCircle,
     LogOut,
     Menu,
-    X
+    X,
+    Bell,
+    ChevronDown,
+    Layers
 } from 'lucide-react';
-import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
+import { Button } from '../ui/Button';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -22,15 +31,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const isManager = profile?.role === 'manager';
-
-    const navigation = isManager ? [
+    // Menu items based on the reference image
+    const navigation = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Allocations', href: '/allocations', icon: ClipboardList }, // Placeholder route
-        { name: 'My Leaders', href: '/leaders', icon: Users }, // Placeholder route
-    ] : [
-        { name: 'My Plan', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'History', href: '/history', icon: ClipboardList }, // Placeholder route
+        { name: 'Clientes', href: '/clients', icon: Users },
+        { name: 'Testes', href: '/tests', icon: FileText },
+        { name: 'Análises', href: '/analytics', icon: BarChart2 },
+        { name: 'Convites', href: '/invites', icon: Mail },
+        { name: 'Gamificação', href: '/gamification', icon: Trophy },
+        { name: 'Assistente IA', href: '/ai-assistant', icon: Bot },
     ];
 
     const handleSignOut = async () => {
@@ -39,83 +48,115 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
+        <div className="min-h-screen bg-slate-50 font-sans flex">
             {/* Mobile Header */}
-            <div className="lg:hidden flex items-center justify-between bg-white border-b p-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
-                        RH
-                    </div>
-                    <span className="font-bold text-gray-900">RH Mentor</span>
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-[#0f5156] border-b border-white/10 p-4">
+                <div className="flex items-center gap-2 text-white">
+                    <Layers className="h-6 w-6" />
+                    <span className="font-bold">RH Master</span>
                 </div>
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white">
                     {isMobileMenuOpen ? <X /> : <Menu />}
                 </button>
             </div>
 
             {/* Sidebar */}
-            <div className={cn(
-                "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+            <aside className={cn(
+                "fixed inset-y-0 left-0 z-50 w-64 bg-[#0f5156] text-white transition-transform duration-200 ease-in-out",
+                "lg:translate-x-0", // Always visible on desktop
                 isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
             )}>
-                <div className="h-full flex flex-col">
-                    <div className="p-6 flex items-center gap-3 border-b">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
-                            RH
-                        </div>
-                        <span className="font-bold text-xl text-gray-900">RH Mentor</span>
-                    </div>
+                {/* Logo Area */}
+                <div className="h-16 flex items-center gap-3 px-6 border-b border-white/10">
+                    <Layers className="h-6 w-6 text-white" />
+                    <span className="font-bold text-lg tracking-wide">RH Master</span>
+                </div>
 
-                    <nav className="flex-1 p-4 space-y-1">
-                        {navigation.map((item) => {
-                            const isActive = location.pathname === item.href;
-                            return (
-                                <button
-                                    key={item.name}
-                                    onClick={() => navigate(item.href)}
-                                    className={cn(
-                                        "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                                        isActive
-                                            ? "bg-indigo-50 text-indigo-600"
-                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                                    )}
-                                >
-                                    <item.icon size={20} />
-                                    {item.name}
-                                </button>
-                            );
-                        })}
-                    </nav>
+                {/* Navigation */}
+                <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
+                    {navigation.map((item) => {
+                        const isActive = location.pathname === item.href || (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
+                        return (
+                            <Link
+                                key={item.name}
+                                to={item.href}
+                                className={cn(
+                                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                                    isActive
+                                        ? "bg-white/10 text-white shadow-sm"
+                                        : "text-slate-300 hover:bg-white/5 hover:text-white"
+                                )}
+                            >
+                                <item.icon size={20} className={isActive ? "text-teal-200" : "text-slate-400"} />
+                                {item.name}
+                            </Link>
+                        );
+                    })}
+                </nav>
 
-                    <div className="p-4 border-t">
-                        <div className="flex items-center gap-3 px-3 py-2">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium">
-                                {user?.email?.[0].toUpperCase()}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                    {user?.email}
-                                </p>
-                                <p className="text-xs text-gray-500 truncate capitalize">
-                                    {profile?.role}
-                                </p>
-                            </div>
-                        </div>
+                {/* Bottom Actions */}
+                <div className="p-4 border-t border-white/10 space-y-1">
+                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
+                        <Settings size={20} className="text-slate-400" />
+                        Configurações
+                    </button>
+                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
+                        <HelpCircle size={20} className="text-slate-400" />
+                        Ajuda
+                    </button>
+
+                    <div className="pt-4 mt-2">
                         <Button
-                            variant="ghost"
-                            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 mt-2"
+                            variant="destructive"
+                            className="w-full justify-start bg-red-600 hover:bg-red-700 text-white border-none"
                             onClick={handleSignOut}
                         >
                             <LogOut size={18} className="mr-2" />
-                            Sign Out
+                            Sair da Conta
                         </Button>
                     </div>
                 </div>
-            </div>
+            </aside>
 
-            {/* Main Content */}
-            <div className="flex-1 lg:pl-64 flex flex-col min-h-screen transition-all duration-200">
-                <main className="flex-1 p-8">
+            {/* Main Content Wrapper */}
+            <div className={cn(
+                "flex-1 flex flex-col min-w-0 overflow-hidden transition-all duration-200",
+                "lg:pl-64" // Add padding on desktop to account for fixed sidebar
+            )}>
+                {/* Top Header */}
+                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm">
+                    {/* Breadcrumbs */}
+                    <div className="flex items-center text-sm">
+                        <span className="font-semibold text-[#0f5156]">RH Master</span>
+                        <span className="mx-2 text-slate-400">•</span>
+                        <span className="text-slate-600">Painel do Mentor</span>
+                    </div>
+
+                    {/* Right Actions */}
+                    <div className="flex items-center gap-4">
+                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors relative">
+                            <Bell size={20} />
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                        </button>
+
+                        <div className="h-8 w-px bg-slate-200 mx-1"></div>
+
+                        <div className="flex items-center gap-3 pl-2 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors">
+                            <div className="w-8 h-8 rounded-full bg-[#0f5156] flex items-center justify-center text-white text-sm font-medium">
+                                {user?.email?.[0].toUpperCase() || 'U'}
+                            </div>
+                            <div className="hidden md:block text-right">
+                                <p className="text-sm font-medium text-slate-900 leading-none">
+                                    {profile?.full_name || 'Marcos Belmiro'}
+                                </p>
+                            </div>
+                            <ChevronDown size={16} className="text-slate-400" />
+                        </div>
+                    </div>
+                </header>
+
+                {/* Main Content Area */}
+                <main className="flex-1 overflow-y-auto bg-slate-50 p-8">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
