@@ -5,7 +5,11 @@ import LoginPage from './modules/auth/pages/LoginPage';
 import RegisterManagerPage from './modules/auth/pages/RegisterManagerPage';
 import RegisterLeaderPage from './modules/auth/pages/RegisterLeaderPage';
 import { ManagerDashboard } from './modules/dashboard/pages/ManagerDashboard';
-import { LeaderDashboard } from './modules/dashboard/pages/LeaderDashboard';
+import { ClientsPage } from './modules/clients/pages/ClientsPage';
+import { AssessmentsPage } from './modules/assessment/pages/AssessmentsPage';
+import { AchievementsPage } from './modules/gamification/pages/AchievementsPage';
+import { GoalsPage } from './modules/gamification/pages/GoalsPage';
+import { ReportsPage } from './modules/reports/pages/ReportsPage';
 import { AssessmentRunner } from './modules/assessment/pages/AssessmentRunner';
 import { Loader2 } from 'lucide-react';
 import './index.css';
@@ -26,7 +30,9 @@ const DashboardRouter = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return profile.role === 'manager' ? <ManagerDashboard /> : <LeaderDashboard />;
+  // FORCE MANAGER DASHBOARD FOR REVIEW
+  // return profile.role === 'manager' ? <ManagerDashboard /> : <LeaderDashboard />;
+  return <ManagerDashboard />;
 };
 
 import { ToastProvider } from './components/ui/Toast';
@@ -47,6 +53,11 @@ function App() {
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<DashboardRouter />} />
+              <Route path="/clients" element={<ClientsPage />} />
+              <Route path="/assessments" element={<AssessmentsPage />} />
+              <Route path="/achievements" element={<AchievementsPage />} />
+              <Route path="/goals" element={<GoalsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
               <Route path="/assessment/:id" element={<AssessmentRunner />} />
             </Route>
 

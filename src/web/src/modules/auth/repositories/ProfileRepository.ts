@@ -8,6 +8,11 @@ export interface Profile {
     created_at: string;
     email?: string; // Optional, fetched from auth metadata or separate table if we had one
     full_name?: string;
+    avatar_url?: string;
+    points?: number;
+    level?: number;
+    current_xp?: number;
+    next_level_xp?: number;
 }
 
 export class ProfileRepository {

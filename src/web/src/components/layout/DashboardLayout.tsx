@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../modules/auth/contexts/AuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
@@ -6,9 +6,7 @@ import {
     Users,
     FileText,
     BarChart2,
-    Mail,
     Trophy,
-    Bot,
     Settings,
     HelpCircle,
     LogOut,
@@ -16,10 +14,12 @@ import {
     X,
     Bell,
     ChevronDown,
-    Layers
+    Layers,
+    Target
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
+import { dashboardRepository } from '../../modules/dashboard/repositories/DashboardRepository';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -30,16 +30,30 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [pendingAssessmentsCount, setPendingAssessmentsCount] = useState(0);
+
+    useEffect(() => {
+        const fetchBadgeCount = async () => {
+            if (profile?.organization_id && user?.id && profile.role === 'manager') {
+                try {
+                    const stats = await dashboardRepository.getManagerStats(profile.organization_id, user.id);
+                    setPendingAssessmentsCount(stats.pendingAssessments);
+                } catch (error) {
+                    console.error('Error fetching badge count:', error);
+                }
+            }
+        };
+        fetchBadgeCount();
+    }, [profile, user]);
 
     // Menu items based on the reference image
     const navigation = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { name: 'Clientes', href: '/clients', icon: Users },
-        { name: 'Testes', href: '/tests', icon: FileText },
-        { name: 'Análises', href: '/analytics', icon: BarChart2 },
-        { name: 'Convites', href: '/invites', icon: Mail },
-        { name: 'Gamificação', href: '/gamification', icon: Trophy },
-        { name: 'Assistente IA', href: '/ai-assistant', icon: Bot },
+        { name: 'Avaliações', href: '/assessments', icon: FileText, badge: pendingAssessmentsCount > 0 ? pendingAssessmentsCount : undefined },
+        { name: 'Conquistas', href: '/achievements', icon: Trophy },
+        { name: 'Metas', href: '/goals', icon: Target },
+        { name: 'Relatórios', href: '/reports', icon: BarChart2 },
     ];
 
     const handleSignOut = async () => {
@@ -88,7 +102,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                                 )}
                             >
                                 <item.icon size={20} className={isActive ? "text-teal-200" : "text-slate-400"} />
-                                {item.name}
+                                <span className="flex-1">{item.name}</span>
+                                {/* @ts-ignore */}
+                                {item.badge && (
+                                    <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                                        {/* @ts-ignore */}
+                                        {item.badge}
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}
@@ -147,7 +168,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                             </div>
                             <div className="hidden md:block text-right">
                                 <p className="text-sm font-medium text-slate-900 leading-none">
-                                    {profile?.full_name || 'Marcos Belmiro'}
+                                    {profile?.full_name || 'Usuário'}
                                 </p>
                             </div>
                             <ChevronDown size={16} className="text-slate-400" />
